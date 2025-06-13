@@ -17,21 +17,23 @@ const handleApiError = (error) => {
 
 export const register = async (userData) => {
   try {
+    console.log("Sending registration request:", userData);
     const response = await axios.post(`${API_URL}/auth/register`, userData);
     if (response.data.token) {
       setAuthToken(response.data.token);
     }
     return response.data;
   } catch (error) {
-    return handleApiError(error);
+    console.error('Registration error:', error.response?.data || error);
+    throw error; // Laisse passer l'erreur originale
   }
 };
 
 //login pour stocker le token
 export const login = async (credentials) => {
   try {
-    const response = await axios.post(`${API_URL}/auth/login`, credentials);
-    console.log('Login API response:', response.data);
+    await axios.post(`${API_URL}/auth/login`, credentials).then((response)=>{
+      console.log('Login API response:', response.data);
     
     if (!response.data.token) {
       throw new Error('Authentication failed - no token received');
@@ -43,12 +45,14 @@ export const login = async (credentials) => {
       user: response.data.user,
       mfaRequired: response.data.mfaRequired || false
     };
+    });
   } catch (error) {
     console.error('Login API error:', {
       status: error.response?.status,
       data: error.response?.data,
       message: error.message
     });
+    console.error("Login error in component:", error.message);
     throw error;
   }
 };

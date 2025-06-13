@@ -3,7 +3,7 @@ const pug = require('pug');
 const htmlToText = require('html-to-text');
 const path = require('path');
 
-module.exports = class Email {
+class Email {
   constructor(user, url) {
     this.to = user.email;
     this.firstName = user.firstName || 'Utilisateur';
@@ -22,20 +22,19 @@ module.exports = class Email {
       });
     }
 
-    // Mailtrap pour le développement
     return nodemailer.createTransport({
       host: process.env.EMAIL_HOST,
       port: process.env.EMAIL_PORT,
       auth: {
-        user: process.env.EMAIL_USERNAME,
-        pass: process.env.EMAIL_PASSWORD
+        user: process.env.EMAIL_USER,
+        pass: process.env.EMAIL_PASS
       }
     });
   }
 
   async send(template, subject) {
     const templatePath = path.join(__dirname, `../views/email/${template}.pug`);
-    
+
     const html = pug.renderFile(templatePath, {
       firstName: this.firstName,
       url: this.url,
@@ -70,17 +69,21 @@ module.exports = class Email {
       'Vérification de votre adresse email'
     );
   }
-};
+}
 
-// Fonctions utilitaires pour envoyer des emails
-exports.sendVerificationEmail = async (email, token) => {
+const sendVerificationEmail = async (email, token) => {
   const url = `${process.env.FRONTEND_URL}/verify-email/${token}`;
-  const user = { email, firstName: 'User' }; // Nom par défaut
+  const user = { email, firstName: 'User' };
   await new Email(user, url).sendVerification();
 };
 
-exports.sendPasswordResetEmail = async (email, token) => {
+const sendPasswordResetEmail = async (email, token) => {
   const url = `${process.env.FRONTEND_URL}/reset-password/${token}`;
-  const user = { email, firstName: 'User' }; // Nom par défaut
+  const user = { email, firstName: 'User' };
   await new Email(user, url).sendPasswordReset();
+};
+
+module.exports = {
+  sendVerificationEmail,
+  sendPasswordResetEmail
 };

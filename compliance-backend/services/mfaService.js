@@ -1,5 +1,6 @@
 const speakeasy = require('speakeasy');
 const QRCode = require('qrcode');
+const jwt = require('jsonwebtoken');
 
 exports.generateMfaSecret = (email) => {
   const secret = speakeasy.generateSecret({

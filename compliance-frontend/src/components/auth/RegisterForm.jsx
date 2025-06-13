@@ -1,11 +1,12 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { register } from '../../api/auth';
-import  Alert  from '../common/Alert';
+import Alert from '../common/Alert';
 
 const RegisterForm = () => {
   const [formData, setFormData] = useState({
-    name: '',
+    firstName: '',
+    lastName: '',
     email: '',
     password: '',
     confirmPassword: ''
@@ -23,13 +24,16 @@ const RegisterForm = () => {
     if (formData.password !== formData.confirmPassword) {
       return setError('Passwords do not match');
     }
-    
+
     try {
       setLoading(true);
-      await register(formData);
+      setError('');
+      await register(formData); // formData contient déjà les bons champs
       navigate('/auth?mode=login');
     } catch (err) {
-      setError(err.response?.data?.message || 'Registration failed');
+      const errorMessage = err.response?.data?.message || err.message || 'Registration failed';
+      setError(errorMessage);
+      console.error('Registration error:', err.response?.data || err);
     } finally {
       setLoading(false);
     }
@@ -38,16 +42,29 @@ const RegisterForm = () => {
   return (
     <form onSubmit={handleSubmit}>
       {error && <Alert type="error" message={error} />}
+
       <div className="form-group">
-        <label>Full Name</label>
+        <label>First Name</label>
         <input
           type="text"
-          name="name"
-          value={formData.name}
+          name="firstName"
+          value={formData.firstName}
           onChange={handleChange}
           required
         />
       </div>
+
+      <div className="form-group">
+        <label>Last Name</label>
+        <input
+          type="text"
+          name="lastName"
+          value={formData.lastName}
+          onChange={handleChange}
+          required
+        />
+      </div>
+
       <div className="form-group">
         <label>Email</label>
         <input
@@ -58,6 +75,7 @@ const RegisterForm = () => {
           required
         />
       </div>
+
       <div className="form-group">
         <label>Password</label>
         <input
@@ -69,6 +87,7 @@ const RegisterForm = () => {
           minLength="6"
         />
       </div>
+
       <div className="form-group">
         <label>Confirm Password</label>
         <input
@@ -80,6 +99,7 @@ const RegisterForm = () => {
           minLength="6"
         />
       </div>
+
       <button type="submit" disabled={loading}>
         {loading ? 'Registering...' : 'Register'}
       </button>

@@ -58,6 +58,7 @@ exports.register = async (req, res, next) => {
       }
     });
   } catch (err) {
+    console.error('Register error:', err);
     next(err);
   }
 };
@@ -68,11 +69,11 @@ exports.register = async (req, res, next) => {
 exports.login = async (req, res, next) => {
   console.log('Login attempt with:', req.body);
   const { email, password } = req.body;
-
   try {
-    // Check for user
+     // Check for user
     const user = await User.findOne({ email }).select('+password');
     console.log('User found:', user);
+
     if (!user) {
       return res.status(401).json({ success: false, message: 'Invalid credentials' });
     }
@@ -84,12 +85,12 @@ exports.login = async (req, res, next) => {
     }
 
     // Check if email is verified
-   /*if (!user.isVerified) {
+   if (!user.isVerified) {
       return res.status(401).json({ 
         success: false, 
         message: 'Email not verified. Please check your email for verification link.' 
       });
-    }*/
+    }
 
     // Generate token
     const token = generateToken(user._id);

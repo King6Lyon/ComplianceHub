@@ -20,8 +20,8 @@ const LoginForm = () => {
   const handleSubmit = async (values, { setSubmitting }) => {
   try {
     console.log('Attempting login with:', values); // Log des credentials
-    const response = await login(values);
-    console.log('Login response:', response); // Réponse complète
+    await login(values).then((response)=>{
+      console.log('Login response:', response); // Réponse complète
     
     if (response.mfaRequired) {
       setMfaData({ token: response.token, email: values.email });
@@ -29,6 +29,7 @@ const LoginForm = () => {
       console.log('Redirecting to /'); // Confirmation
       navigate('/');
     }
+    }) 
   } catch (err) {
     console.error('Login error:', err); // Log détaillé
     setError(err.message || 'Échec de la connexion');

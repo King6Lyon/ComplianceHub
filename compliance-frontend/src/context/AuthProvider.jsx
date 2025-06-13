@@ -9,7 +9,7 @@ export const AuthProvider = ({ children }) => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const navigate = useNavigate();
-
+  
   useEffect(() => {
     const token = localStorage.getItem('token');
     
@@ -45,37 +45,43 @@ export const AuthProvider = ({ children }) => {
   }, []);
 
   const loginUser = async (email, password, mfaCode) => {
-    setLoading(true);
-    try {
-      const response = await login({ email, password, mfaCode });
-      console.log('Login response:', response);
+  setLoading(true);
+  setError(null);
+  try {
+    const response = await login({ email, password, mfaCode });
+    console.log('Login response:', response);
 
-      if (!response?.token) {
-        throw new Error('No token received');
-      }
-
-      localStorage.setItem('token', response.token);
-      axios.defaults.headers.common['Authorization'] = `Bearer ${response.token}`;
-      
-      const userData = response.user || await getCurrentUser();
-      setUser(userData);
-      
-      navigate('/');
-      return { success: true };
-    } catch (err) {
-      const errorMsg = err.response?.data?.message || err.message;
-      console.error('Login error:', errorMsg);
-      setError(errorMsg);
-
-      if (errorMsg.includes('verified')) {
-        navigate('/verify-email', { state: { email } });
-      }
-      
-      return { success: false, error: errorMsg };
-    } finally {
-      setLoading(false);
+    if (response?.mfaRequired) {
+      // Renvoie l'indication au composant LoginForm pour lancer MFA
+      return { success: false, mfaRequired: true, token: response.token, email };
     }
-  };
+
+    if (!response?.token) {
+      throw new Error('No token received');
+    }
+
+    localStorage.setItem('token', response.token);
+    axios.defaults.headers.common['Authorization'] = `Bearer ${response.token}`;
+
+    const userData = response.user || await getCurrentUser();
+    setUser(userData);
+
+    navigate('/');
+    return { success: true };
+  } catch (err) {
+    const errorMsg = err.response?.data?.message || err.message;
+    console.error('Login error:', errorMsg);
+    setError(errorMsg);
+
+    if (errorMsg.includes('verified')) {
+      navigate('/verify-email', { state: { email } });
+    }
+
+    return { success: false, error: errorMsg };
+  } finally {
+    setLoading(false);
+  }
+};
 
   const logout = async () => {
     try {
