@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Tab, Tabs } from 'react-bootstrap';
 import { getUsers, createUser, updateUser } from '../api/admin';
 import Alert from '../components/common/Alert';
+import Modal from '../components/common/Modal';
 
 const Admin = () => {
   const [users, setUsers] = useState([]);
@@ -30,9 +31,9 @@ const Admin = () => {
       setUsers([...users, newUser]);
       return { success: true };
     } catch (err) {
-      return { 
-        success: false, 
-        error: err.response?.data?.message || 'Failed to create user' 
+      return {
+        success: false,
+        error: err.response?.data?.message || 'Failed to create user'
       };
     }
   };
@@ -43,9 +44,9 @@ const Admin = () => {
       setUsers(users.map(u => u.id === userId ? updatedUser : u));
       return { success: true };
     } catch (err) {
-      return { 
-        success: false, 
-        error: err.response?.data?.message || 'Failed to update user' 
+      return {
+        success: false,
+        error: err.response?.data?.message || 'Failed to update user'
       };
     }
   };
@@ -54,11 +55,11 @@ const Admin = () => {
     <div className="admin-page">
       <h1>Admin Dashboard</h1>
       {error && <Alert type="error" message={error} />}
-      
+
       <Tabs activeKey={activeTab} onSelect={(k) => setActiveTab(k)}>
         <Tab eventKey="users" title="User Management">
-          <UserManagement 
-            users={users} 
+          <UserManagement
+            users={users}
             onCreate={handleCreateUser}
             onUpdate={handleUpdateUser}
             loading={loading}
@@ -89,7 +90,7 @@ const UserManagement = ({ users, onCreate, onUpdate, loading }) => {
     } else {
       result = await onCreate(userData);
     }
-    
+
     if (result.success) {
       setShowForm(false);
       setEditingUser(null);
@@ -101,7 +102,7 @@ const UserManagement = ({ users, onCreate, onUpdate, loading }) => {
 
   return (
     <div>
-      <button 
+      <button
         onClick={() => {
           setEditingUser(null);
           setShowForm(true);
@@ -110,14 +111,15 @@ const UserManagement = ({ users, onCreate, onUpdate, loading }) => {
       >
         Add New User
       </button>
-      
+
       {loading ? (
         <p>Loading users...</p>
       ) : (
         <table className="user-table">
           <thead>
             <tr>
-              <th>Name</th>
+              <th>First Name</th>
+              <th>Last Name</th>
               <th>Email</th>
               <th>Role</th>
               <th>Status</th>
@@ -127,12 +129,13 @@ const UserManagement = ({ users, onCreate, onUpdate, loading }) => {
           <tbody>
             {users.map(user => (
               <tr key={user.id}>
-                <td>{user.name}</td>
+                <td>{user.firstName}</td>
+                <td>{user.lastName}</td>
                 <td>{user.email}</td>
                 <td>{user.role}</td>
                 <td>{user.active ? 'Active' : 'Inactive'}</td>
                 <td>
-                  <button 
+                  <button
                     onClick={() => {
                       setEditingUser(user);
                       setShowForm(true);
@@ -147,10 +150,10 @@ const UserManagement = ({ users, onCreate, onUpdate, loading }) => {
           </tbody>
         </table>
       )}
-      
+
       <Modal show={showForm} onClose={() => setShowForm(false)}>
-        <UserForm 
-          user={editingUser} 
+        <UserForm
+          user={editingUser}
           onSubmit={handleSubmit}
           error={formError}
           onCancel={() => {
@@ -166,7 +169,8 @@ const UserManagement = ({ users, onCreate, onUpdate, loading }) => {
 
 const UserForm = ({ user, onSubmit, error, onCancel }) => {
   const [formData, setFormData] = useState({
-    name: '',
+    firstName: '',
+    lastName: '',
     email: '',
     role: 'user',
     active: true
@@ -175,14 +179,16 @@ const UserForm = ({ user, onSubmit, error, onCancel }) => {
   useEffect(() => {
     if (user) {
       setFormData({
-        name: user.name,
+        firstName: user.firstName,
+        lastName: user.lastName,
         email: user.email,
         role: user.role,
         active: user.active
       });
     } else {
       setFormData({
-        name: '',
+        firstName: '',
+        lastName: '',
         email: '',
         role: 'user',
         active: true
@@ -207,18 +213,29 @@ const UserForm = ({ user, onSubmit, error, onCancel }) => {
     <form onSubmit={handleSubmit}>
       <h2>{user ? 'Edit User' : 'Add New User'}</h2>
       {error && <Alert type="error" message={error} />}
-      
+
       <div className="form-group">
-        <label>Full Name</label>
+        <label>First Name</label>
         <input
           type="text"
-          name="name"
-          value={formData.name}
+          name="firstName"
+          value={formData.firstName}
           onChange={handleChange}
           required
         />
       </div>
-      
+
+      <div className="form-group">
+        <label>Last Name</label>
+        <input
+          type="text"
+          name="lastName"
+          value={formData.lastName}
+          onChange={handleChange}
+          required
+        />
+      </div>
+
       <div className="form-group">
         <label>Email</label>
         <input
@@ -230,7 +247,7 @@ const UserForm = ({ user, onSubmit, error, onCancel }) => {
           disabled={!!user}
         />
       </div>
-      
+
       <div className="form-group">
         <label>Role</label>
         <select
@@ -243,7 +260,7 @@ const UserForm = ({ user, onSubmit, error, onCancel }) => {
           <option value="admin">Admin</option>
         </select>
       </div>
-      
+
       <div className="form-group checkbox-group">
         <label>
           <input
@@ -255,7 +272,7 @@ const UserForm = ({ user, onSubmit, error, onCancel }) => {
           Active
         </label>
       </div>
-      
+
       <div className="form-actions">
         <button type="submit" className="save-btn">
           {user ? 'Update User' : 'Create User'}

@@ -8,38 +8,58 @@ export const useFramework = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 
+  // Chargement des frameworks
   useEffect(() => {
     const loadFrameworks = async () => {
       try {
         setLoading(true);
         const data = await getFrameworks();
-        setFrameworks(data);
-        if (data.length > 0) {
-          setCurrentFramework(data[0]);
+
+        if (Array.isArray(data)) {
+          setFrameworks(data);
+          if (data.length > 0) {
+            setCurrentFramework(data[0]);
+          }
+        } else {
+          console.warn('getFrameworks() did not return an array:', data);
+          setFrameworks([]); // éviter map sur undefined
         }
+
       } catch (err) {
-        setError(err.response?.data?.message || 'Failed to load frameworks');
+        console.error('Erreur lors du chargement des frameworks:', err);
+        setError(err?.response?.data?.message || 'Échec du chargement des frameworks');
       } finally {
         setLoading(false);
       }
     };
+
     loadFrameworks();
   }, []);
 
+  // Chargement des contrôles du framework sélectionné
   useEffect(() => {
     const loadControls = async () => {
-      if (!currentFramework) return;
-      
+      if (!currentFramework || !currentFramework.id) return;
+
       try {
         setLoading(true);
         const data = await getFrameworkControls(currentFramework.id);
-        setControls(data);
+
+        if (Array.isArray(data)) {
+          setControls(data);
+        } else {
+          console.warn('getFrameworkControls() did not return an array:', data);
+          setControls([]);
+        }
+
       } catch (err) {
-        setError(err.response?.data?.message || 'Failed to load controls');
+        console.error('Erreur lors du chargement des contrôles:', err);
+        setError(err?.response?.data?.message || 'Échec du chargement des contrôles');
       } finally {
         setLoading(false);
       }
     };
+
     loadControls();
   }, [currentFramework]);
 
@@ -49,6 +69,6 @@ export const useFramework = () => {
     setCurrentFramework,
     controls,
     loading,
-    error
+    error,
   };
 };

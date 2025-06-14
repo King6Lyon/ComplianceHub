@@ -14,6 +14,7 @@ const pug = require('pug');
 
 // Routes
 const authRoutes = require('./routes/authRoutes');
+const adminRoutes = require('./routes/adminRoutes');
 const userRoutes = require('./routes/userRoutes');
 const frameworkRoutes = require('./routes/frameworkRoutes');
 const controlRoutes = require('./routes/controlRoutes');
@@ -64,6 +65,7 @@ app.use(cookieParser());
 
 // Routes
 app.use('/api/auth', authRoutes);
+app.use('/api/admin', adminRoutes);
 app.use('/api/users', userRoutes);
 app.use('/api/frameworks', frameworkRoutes);
 app.use('/api/controls', controlRoutes);

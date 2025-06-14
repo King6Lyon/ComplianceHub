@@ -32,30 +32,29 @@ export const register = async (userData) => {
 //login pour stocker le token
 export const login = async (credentials) => {
   try {
-    await axios.post(`${API_URL}/auth/login`, credentials).then((response)=>{
-      console.log('Login API response:', response.data);
-    
+    const response = await axios.post(`${API_URL}/auth/login`, credentials);
+    console.log('Login API response:', response.data);
+
     if (!response.data.token) {
       throw new Error('Authentication failed - no token received');
     }
-    
+
     return {
       success: true,
       token: response.data.token,
       user: response.data.user,
       mfaRequired: response.data.mfaRequired || false
     };
-    });
   } catch (error) {
     console.error('Login API error:', {
       status: error.response?.status,
       data: error.response?.data,
       message: error.message
     });
-    console.error("Login error in component:", error.message);
     throw error;
   }
 };
+
 
 export const verifyMfa = async (token, code) => {
   try {

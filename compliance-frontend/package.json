@@ -21,6 +21,7 @@
     "date-fns": "^4.1.0",
     "formik": "^2.4.6",
     "framer-motion": "^12.16.0",
+    "lucide-react": "^0.515.0",
     "notistack": "^3.0.2",
     "otp-input-react": "^0.3.0",
     "react": "^19.1.0",

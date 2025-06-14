@@ -26,8 +26,8 @@ exports.register = async (req, res, next) => {
     });
 
     // Hash password
-    const salt = await bcrypt.genSalt(10);
-    user.password = await bcrypt.hash(password, salt);
+   /* const salt = await bcrypt.genSalt(10);
+    user.password = await bcrypt.hash(password, salt);*/
 
     // Generate verification token
     user.verificationToken = jwt.sign(
@@ -35,6 +35,8 @@ exports.register = async (req, res, next) => {
       process.env.JWT_SECRET,
       { expiresIn: '1d' }
     );
+
+    console.log('Before saving, hashed password:', user.password);
 
     await user.save();
 
@@ -72,7 +74,10 @@ exports.login = async (req, res, next) => {
   try {
      // Check for user
     const user = await User.findOne({ email }).select('+password');
+    console.log('Login credentials:', email, password);
     console.log('User found:', user);
+    console.log('User hashed password:', user.password);
+
 
     if (!user) {
       return res.status(401).json({ success: false, message: 'Invalid credentials' });
@@ -80,17 +85,18 @@ exports.login = async (req, res, next) => {
 
     // Check if password matches
     const isMatch = await bcrypt.compare(password, user.password);
+    
     if (!isMatch) {
       return res.status(401).json({ success: false, message: 'Invalid credentials' });
     }
 
     // Check if email is verified
-   if (!user.isVerified) {
+   /*if (!user.isVerified) {
       return res.status(401).json({ 
         success: false, 
         message: 'Email not verified. Please check your email for verification link.' 
       });
-    }
+    }*/
 
     // Generate token
     const token = generateToken(user._id);

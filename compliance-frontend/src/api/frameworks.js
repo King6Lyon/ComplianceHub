@@ -5,12 +5,16 @@ const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
 export const getFrameworks = async () => {
   try {
     const response = await axios.get(`${API_URL}/frameworks`);
-    return response.data;
+    console.log('🔍 Résultat brut:', response.data);
+
+    // Accès au vrai tableau
+    return response.data?.data?.frameworks || [];
   } catch (error) {
     console.error('Error fetching frameworks:', error);
     throw error;
   }
 };
+
 
 export const getFrameworkControls = async (frameworkId) => {
   try {

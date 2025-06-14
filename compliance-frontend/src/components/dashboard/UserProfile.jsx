@@ -6,7 +6,8 @@ import Alert from '../common/Alert';
 const UserProfile = () => {
   const { user, updateUser } = useAuth();
   const [formData, setFormData] = useState({
-    name: '',
+    firstName: '',
+    lastName: '',
     email: '',
     currentPassword: '',
     newPassword: '',
@@ -19,7 +20,8 @@ const UserProfile = () => {
   useEffect(() => {
     if (user) {
       setFormData({
-        name: user.name || '',
+        firstName: user.firstName || '',
+        lastName: user.lastName || '',
         email: user.email || '',
         currentPassword: '',
         newPassword: '',
@@ -34,7 +36,7 @@ const UserProfile = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    
+
     if (formData.newPassword && formData.newPassword !== formData.confirmPassword) {
       return setError('New passwords do not match');
     }
@@ -42,7 +44,8 @@ const UserProfile = () => {
     try {
       setLoading(true);
       const updatedUser = await updateProfile({
-        name: formData.name,
+        firstName: formData.firstName,
+        lastName: formData.lastName,
         email: formData.email,
         currentPassword: formData.currentPassword,
         newPassword: formData.newPassword
@@ -71,14 +74,24 @@ const UserProfile = () => {
       <h2>Profile Settings</h2>
       {error && <Alert type="error" message={error} />}
       {success && <Alert type="success" message={success} />}
-      
+
       <form onSubmit={handleSubmit}>
         <div className="form-group">
-          <label>Full Name</label>
+          <label>First Name</label>
           <input
             type="text"
-            name="name"
-            value={formData.name}
+            name="firstName"
+            value={formData.firstName}
+            onChange={handleChange}
+            required
+          />
+        </div>
+        <div className="form-group">
+          <label>Last Name</label>
+          <input
+            type="text"
+            name="lastName"
+            value={formData.lastName}
             onChange={handleChange}
             required
           />
@@ -93,7 +106,7 @@ const UserProfile = () => {
             required
           />
         </div>
-        
+
         <h3>Change Password</h3>
         <div className="form-group">
           <label>Current Password</label>
@@ -125,7 +138,7 @@ const UserProfile = () => {
             placeholder="Leave blank to keep current password"
           />
         </div>
-        
+
         <button type="submit" disabled={loading}>
           {loading ? 'Updating...' : 'Update Profile'}
         </button>
