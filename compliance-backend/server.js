@@ -10,7 +10,10 @@ const xss = require('xss-clean');
 const hpp = require('hpp');
 const cookieParser = require('cookie-parser');
 const path = require('path');
+const session = require('express-session');
 const pug = require('pug');
+const passport = require('passport');
+require('./config/passport');
 
 // Routes
 const authRoutes = require('./routes/authRoutes');
@@ -47,6 +50,14 @@ app.use(cors({
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With']
 }));
+app.use(session({
+  secret: process.env.JWT_SECRET,
+  resave: false,
+  saveUninitialized: true
+}));
+
+app.use(passport.initialize());
+app.use(passport.session());
 app.use(mongoSanitize());
 app.use(xss());
 app.use(hpp());

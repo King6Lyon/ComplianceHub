@@ -1,38 +1,67 @@
 import { NavLink } from 'react-router-dom';
+import { List, ListItem, ListItemIcon, ListItemText, Divider, Box } from '@mui/material';
 import {
-  Dashboard,
-  Assessment,
-  Checklist,
-  Security,
-  Task,
-  Description,
-  Settings
+  Dashboard as DashboardIcon,
+  Assessment as FrameworkIcon,
+  Checklist as ControlIcon,
+  Security as RiskIcon,
+  Task as TaskIcon,
+  Description as ReportIcon,
+  Settings as SettingsIcon,
+  AdminPanelSettings as AdminIcon
 } from '@mui/icons-material';
 
 const Sidebar = () => {
-  const links = [
-    { to: '/', label: 'Tableau de bord', icon: <Dashboard /> },
-    { to: '/frameworks', label: 'Cadres de conformité', icon: <Assessment /> },
-    { to: '/controls', label: 'Contrôles', icon: <Checklist /> },
-    { to: '/risks', label: 'Évaluation des risques', icon: <Security /> },
-    { to: '/tasks', label: 'Tâches', icon: <Task /> },
-    { to: '/reports', label: 'Rapports', icon: <Description /> },
-    { to: '/settings', label: 'Paramètres', icon: <Settings /> },
-  ];
-
   return (
-    <div className="w-64 h-screen bg-white shadow flex flex-col">
-      {links.map(({ to, label, icon }) => (
-        <NavLink
-          key={to}
-          to={to}
-          className="flex items-center gap-3 p-4 text-gray-700 hover:bg-gray-100"
-        >
-          <span>{icon}</span>
-          <span>{label}</span>
-        </NavLink>
-      ))}
-    </div>
+    <Box sx={{ width: 250, bgcolor: 'background.paper', height: '100vh' }}>
+      <List>
+        <ListItem button component={NavLink} to="/" exact>
+          <ListItemIcon>
+            <DashboardIcon />
+          </ListItemIcon>
+          <ListItemText primary="Tableau de bord" />
+        </ListItem>
+        <ListItem button component={NavLink} to="/frameworks">
+          <ListItemIcon>
+            <FrameworkIcon />
+          </ListItemIcon>
+          <ListItemText primary="Cadres de conformité" />
+        </ListItem>
+        <ListItem button component={NavLink} to="/controls">
+          <ListItemIcon>
+            <ControlIcon />
+          </ListItemIcon>
+          <ListItemText primary="Contrôles" />
+        </ListItem>
+        <ListItem button component={NavLink} to="/risks">
+          <ListItemIcon>
+            <RiskIcon />
+          </ListItemIcon>
+          <ListItemText primary="Évaluation des risques" />
+        </ListItem>
+        <ListItem button component={NavLink} to="/tasks">
+          <ListItemIcon>
+            <TaskIcon />
+          </ListItemIcon>
+          <ListItemText primary="Tâches" />
+        </ListItem>
+        <ListItem button component={NavLink} to="/reports">
+          <ListItemIcon>
+            <ReportIcon />
+          </ListItemIcon>
+          <ListItemText primary="Rapports" />
+        </ListItem>
+      </List>
+      <Divider />
+      <List>
+        <ListItem button component={NavLink} to="/settings">
+          <ListItemIcon>
+            <SettingsIcon />
+          </ListItemIcon>
+          <ListItemText primary="Paramètres" />
+        </ListItem>
+      </List>
+    </Box>
   );
 };
 

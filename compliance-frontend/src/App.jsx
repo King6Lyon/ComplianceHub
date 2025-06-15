@@ -11,6 +11,7 @@ import SettingsPage from './pages/Settings';
 import AdminPage from './pages/Admin';
 import Loading from './components/common/Loading';
 import VerifyEmailPage from './pages/VerifyEmail';
+import OAuthSuccess from './pages/OAuthSuccess';
 
 function App() {
   const { user, loading } = useAuth();
@@ -21,6 +22,7 @@ function App() {
 
   return (
     <Routes>
+      <Route path="/oauth-success" element={<OAuthSuccess />} />
       <Route path="/verify-email/:token" element={<VerifyEmailPage />} />
       <Route 
         path="/" 

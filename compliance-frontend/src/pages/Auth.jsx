@@ -66,9 +66,15 @@ const Auth = () => {
   return (
     <div className="auth-page">
       <div className="auth-container">
+
+      <a href="http://localhost:5000/api/auth/google">
+               <button className="google-btn">Se connecter avec Google</button>
+      </a>
+
         <h1>ComplianceHub</h1>
         
         {error && <Alert type="error" message={error} />}
+
         
         {mode === 'login' && (
           <form onSubmit={handleLogin} className="login-form">

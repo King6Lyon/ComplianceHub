@@ -444,3 +444,15 @@ exports.verifyMfa = async (req, res, next) => {
     next(err);
   }
 };
+
+// @desc    Handle Google OAuth callback
+// @route   GET /api/auth/google/callback
+// @access  Public
+exports.googleAuthCallback = (req, res) => {
+  const token = jwt.sign({ id: req.user._id }, process.env.JWT_SECRET, {
+    expiresIn: '1d',
+  });
+
+  res.redirect(`${process.env.CLIENT_URL}/oauth-success?token=${token}`);
+};
+
