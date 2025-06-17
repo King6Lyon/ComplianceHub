@@ -1,3 +1,6 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
 /* Global Styles */
 :root {
   --primary-color: #3498db;
@@ -10,6 +13,12 @@
   --white-color: #ffffff;
   --shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
 }
+
+html, body, #root {
+  height: 100%;
+  margin: 0;
+}
+
 
 * {
   box-sizing: border-box;

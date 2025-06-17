@@ -25,7 +25,7 @@ const DashboardPage = () => {
           getFrameworks(),
           getTasks()
         ]);
-        
+
         setFrameworks(frameworksData);
         setTasks(tasksData);
       } catch (err) {
@@ -38,39 +38,39 @@ const DashboardPage = () => {
     fetchData();
   }, [setFrameworks]);
 
-  if (loading) {
-    return <Loading fullScreen />;
-  }
+  if (loading) return <Loading fullScreen />;
 
   return (
-    <div className="flex h-screen bg-gray-100">
-      <Sidebar />
-      
-      <div className="flex-1 flex flex-col overflow-hidden">
-        <Header user={user} />
-        
-        <main className="flex-1 overflow-y-auto p-4">
+    <div className="h-screen flex flex-col overflow-hidden">
+      {/* Header pleine largeur */}
+      <Header user={user} />
+
+      {/* Zone principale : Sidebar + contenu à droite */}
+      <div className="flex flex-1 overflow-hidden">
+        {/* Sidebar gauche */}
+        <Sidebar />
+
+        {/* Contenu principal */}
+        <main className="flex-1 overflow-y-auto bg-gray-100 p-6 space-y-6">
           {error && (
             <Alert type="error" message={error} onClose={() => setError(null)} />
           )}
-          
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
-            <div className="bg-white rounded-lg shadow p-6">
-              <h2 className="text-xl font-semibold mb-4">Framework Progress</h2>
-              {currentFramework ? (
-                <FrameworkProgress framework={currentFramework} />
-              ) : (
-                <p className="text-gray-500">No framework selected</p>
-              )}
-            </div>
-            
-            <div className="bg-white rounded-lg shadow p-6">
-              <h2 className="text-xl font-semibold mb-4">Upcoming Tasks</h2>
-              <TaskList tasks={tasks.slice(0, 5)} />
-            </div>
+
+          {/* FrameworkProgress en haut */}
+          <div className="bg-white rounded-xl shadow p-6">
+            <h2 className="text-xl font-bold mb-4">Framework Progress</h2>
+            {currentFramework ? (
+              <FrameworkProgress framework={currentFramework} />
+            ) : (
+              <p className="text-gray-500">No framework selected</p>
+            )}
           </div>
-          
-          {/* Additional dashboard widgets can be added here */}
+
+          {/* TaskList en dessous */}
+          <div className="bg-white rounded-xl shadow p-6">
+            <h2 className="text-xl font-bold mb-4">Upcoming Tasks</h2>
+            <TaskList tasks={tasks.slice(0, 5)} />
+          </div>
         </main>
       </div>
     </div>
