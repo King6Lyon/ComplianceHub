@@ -7,15 +7,21 @@ export const getControls = async (frameworkId, filters = {}) => {
   if (filters.category) params.append('category', filters.category);
   if (filters.level) params.append('level', filters.level);
   
-  const response = await axios.get(
-    `${API_URL}/controls/framework/${frameworkId}?${params.toString()}`
-  );
-  return response.data.data.controls;
+  try {
+    const response = await axios.get(
+      `${API_URL}/controls/framework/${frameworkId}?${params.toString()}`
+    );
+    return response.data.data.controls || [];
+  } catch (error) {
+    console.error('Erreur lors de la récupération des contrôles:', error);
+    return []; // Retourne un tableau vide en cas d'erreur
+  }
 };
+
 
 export const getControl = async (id) => {
   const response = await axios.get(`${API_URL}/controls/${id}`);
-  return response.data.data.control;
+  return response.data.data.control || null;
 };
 
 export const getControlCategories = async (frameworkId) => {

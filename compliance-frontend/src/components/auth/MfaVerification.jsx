@@ -1,64 +1,76 @@
-import { useState } from 'react';
+import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { verifyMfa } from '../../api/auth';
-import { Box, Typography, Button, Alert } from '@mui/material';
-import OtpInput from 'otp-input-react';
+import { useAuth } from '../../context/auth-context';
+import Alert from '../common/Alert';
 
 const MfaVerification = ({ mfaData }) => {
-  const [otp, setOtp] = useState('');
-  const [error, setError] = useState('');
-  const [isSubmitting, setIsSubmitting] = useState(false);
+  const { setError } = useAuth();
   const navigate = useNavigate();
+  const [code, setCode] = useState('');
+  const [loading, setLoading] = useState(false);
+  const [localError, setLocalError] = useState('');
 
-  const handleSubmit = async () => {
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setLoading(true);
+    setLocalError('');
+    setError(null);
+
     try {
-      setIsSubmitting(true);
-      setError('');
-      await verifyMfa(mfaData.token, otp);
-      navigate('/');
+      const response = await verifyMfa(mfaData.token, code);
+      if (response?.token) {
+        localStorage.setItem('token', response.token);
+       navigate('/');
+      } else {
+        throw new Error('Erreur lors de la vérification MFA');
+      }
     } catch (err) {
-      setError(err.message || 'Échec de la vérification MFA');
+      console.error('MFA verification error:', err);
+      const msg = err.response?.data?.message || err.message || 'Code MFA invalide';
+      setLocalError(msg);
+      setError(msg);
     } finally {
-      setIsSubmitting(false);
+      setLoading(false);
     }
   };
 
   return (
-    <Box sx={{ maxWidth: 400, mx: 'auto', mt: 4, textAlign: 'center' }}>
-      <Typography variant="h4" gutterBottom>
-        Vérification MFA
-      </Typography>
-      <Typography variant="body1" gutterBottom>
-        Entrez le code à 6 chiffres de votre application d'authentification
-      </Typography>
-      {error && <Alert severity="error" sx={{ mb: 2 }}>{error}</Alert>}
-      <Box sx={{ my: 3 }}>
-        <OtpInput
-          value={otp}
-          onChange={setOtp}
-          OTPLength={6}
-          otpType="number"
-          disabled={false}
-          autoFocus
-          inputStyles={{
-            width: '3rem',
-            height: '3rem',
-            margin: '0 0.5rem',
-            fontSize: '1.5rem',
-            borderRadius: '4px',
-            border: '1px solid rgba(0, 0, 0, 0.23)'
-          }}
-        />
-      </Box>
-      <Button
-        variant="contained"
-        onClick={handleSubmit}
-        disabled={otp.length !== 6 || isSubmitting}
-        fullWidth
-      >
-        {isSubmitting ? 'Vérification...' : 'Vérifier'}
-      </Button>
-    </Box>
+    <div className="flex items-center justify-center min-h-screen bg-gray-100">
+      <div className="bg-white rounded-lg shadow-md p-8 max-w-md w-full">
+        <h2 className="text-2xl font-bold text-blue-800 text-center mb-6">
+          Vérification MFA
+        </h2>
+
+        {localError && <Alert type="error" message={localError} />}
+
+        <form onSubmit={handleSubmit}>
+          <div className="mb-4">
+            <label className="block text-gray-700 font-medium mb-2">
+              Code MFA (à 6 chiffres)
+            </label>
+            <input
+              type="text"
+              value={code}
+              onChange={(e) => setCode(e.target.value)}
+              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+              placeholder="Ex: 123456"
+              required
+            />
+          </div>
+
+          <button
+            type="submit"
+            disabled={loading}
+            className={`w-full bg-blue-800 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded-lg transition duration-200 ${
+              loading ? 'opacity-50 cursor-not-allowed' : ''
+            }`}
+          >
+            {loading ? 'Vérification...' : 'Vérifier'}
+          </button>
+        </form>
+      </div>
+    </div>
   );
 };
 

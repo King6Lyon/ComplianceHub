@@ -44,12 +44,21 @@ app.set('views', path.join(__dirname, 'views'));
 
 // Middleware de sécurité
 app.use(helmet());
-app.use(cors({
+const corsOptions = {
   origin: process.env.CLIENT_URL || 'http://localhost:3000',
   credentials: true,
+  allowedHeaders: [
+    'Content-Type', 
+    'Authorization', 
+    'X-Requested-With',
+    'Cache-Control' // Ajoutez ce header
+  ],
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With']
-}));
+  preflightContinue: false,
+  optionsSuccessStatus: 204
+};
+
+app.use(cors(corsOptions));
 app.use(session({
   secret: process.env.JWT_SECRET,
   resave: false,
@@ -65,8 +74,14 @@ app.use(hpp());
 // Limiteur de requêtes
 const limiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 100 // limite chaque IP à 100 requêtes par fenêtre
-});
+  max: 500, // augmenté de 100 à 500
+  message: 'Trop de requêtes depuis cette IP, veuillez réessayer plus tard',
+  skip: (req) => {
+    // Ignorer la limitation pour certaines routes ou en développement
+    return process.env.NODE_ENV === 'development' || 
+           req.path.startsWith('/public');
+  }
+});;
 app.use(limiter);
 
 // Middleware pour parser le JSON

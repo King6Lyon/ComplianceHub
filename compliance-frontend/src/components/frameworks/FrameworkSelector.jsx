@@ -1,7 +1,9 @@
+// src/components/frameworks/FrameworkSelector.jsx
 import React, { useEffect, useState } from 'react';
-import { useFramework } from '../../context/framework-state';
 import { getFrameworks } from '../../api/frameworks';
 import Alert from '../common/Alert';
+import { useFramework } from '../../context/framework-state';
+import { ShieldCheck } from 'lucide-react';
 
 const FrameworkSelector = () => {
   const { currentFramework, setCurrentFramework } = useFramework();
@@ -10,42 +12,49 @@ const FrameworkSelector = () => {
   const [error, setError] = useState('');
 
   useEffect(() => {
-    const loadFrameworks = async () => {
+    const load = async () => {
       try {
         const data = await getFrameworks();
         setFrameworks(data);
-        if (data.length > 0 && !currentFramework) {
+
+        if (!currentFramework && data.length) {
           setCurrentFramework(data[0]);
         }
       } catch (err) {
-        setError(err.response?.data?.message || 'Failed to load frameworks');
+        setError(err.message || 'Échec du chargement des frameworks');
       } finally {
         setLoading(false);
       }
     };
-    loadFrameworks();
+    load();
   }, [currentFramework, setCurrentFramework]);
 
   const handleChange = (e) => {
-    const selected = frameworks.find(f => f.id === e.target.value);
-    if (selected) {
-      setCurrentFramework(selected);
-    }
+    const selected = frameworks.find(f => f._id === e.target.value);
+    if (selected) setCurrentFramework(selected);
   };
 
-  if (loading) return <div>Loading frameworks...</div>;
+  if (loading) return <div className="text-gray-500">Chargement des frameworks...</div>;
   if (error) return <Alert type="error" message={error} />;
 
   return (
-    <div className="framework-selector">
-      <label>Select Compliance Framework:</label>
-      <select 
-        value={currentFramework?.id || ''}
+    <div className="bg-white rounded-2xl shadow p-6 w-full max-w-xl mx-auto my-6">
+      <div className="flex items-center gap-2 mb-4">
+        <ShieldCheck className="text-blue-600" />
+        <h2 className="text-xl font-semibold">Select Compliance Framework</h2>
+      </div>
+
+      <label htmlFor="framework" className="block text-sm font-medium text-gray-700 mb-2">
+        Available Frameworks
+      </label>
+      <select
+        id="framework"
+        value={currentFramework?._id || ''}
         onChange={handleChange}
-        disabled={frameworks.length === 0}
+        className="mt-1 block w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-gray-800"
       >
         {frameworks.map(framework => (
-          <option key={framework.id} value={framework.id}>
+          <option key={framework._id} value={framework._id}>
             {framework.name} ({framework.version})
           </option>
         ))}

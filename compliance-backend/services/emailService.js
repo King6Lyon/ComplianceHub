@@ -72,15 +72,15 @@ class Email {
 }
 
 const sendVerificationEmail = async (email, token) => {
-  const url = `${process.env.FRONTEND_URL}/verify-email/${token}`;
+  const url = `${process.env.CLIENT_URL}/verify-email/${token}`;
   const user = { email, firstName: 'User' };
   await new Email(user, url).sendVerification();
 };
 
 const sendPasswordResetEmail = async (email, token) => {
-  const url = `${process.env.FRONTEND_URL}/reset-password/${token}`;
-  const user = { email, firstName: 'User' };
-  await new Email(user, url).sendPasswordReset();
+  const url = `${process.env.CLIENT_URL}/auth?mode=reset&token=${token}`; 
+  const user = { email, firstName: 'User' }; 
+  await new Email(user, url).sendPasswordReset(); 
 };
 
 module.exports = {

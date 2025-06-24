@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useAuth } from '../context/auth-context';
-import { useFramework } from '../hooks/useFramework';
+import { useFramework } from '../context/framework-state';
 import { getFrameworks } from '../api/frameworks';
 import { getTasks } from '../api/tasks';
 import Sidebar from '../components/dashboard/Sidebar';

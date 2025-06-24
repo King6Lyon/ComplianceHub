@@ -14,9 +14,10 @@ import VerifyEmailPage from './pages/VerifyEmail';
 import OAuthSuccess from './pages/OAuthSuccess';
 
 function App() {
-  const { user, loading } = useAuth();
+  const { user, loading, id } = useAuth();
 
   if (loading) {
+    console.log('ControlDetailPage mount, id param =', id);
     return <Loading fullScreen />;
   }
 
@@ -37,7 +38,7 @@ function App() {
         element={user ? <FrameworksPage /> : <Navigate to="/auth" />} 
       />
       <Route 
-        path="/controls" 
+        path="/controls/:id" 
         element={user ? <ControlsPage /> : <Navigate to="/auth" />} 
       />
       <Route 

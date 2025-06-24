@@ -11,56 +11,39 @@ const Header = () => {
   };
 
   return (
-    <header className="flex items-center justify-between bg-var(--white-color); shadow px-6 py-4">
-      <div className="text-lg font-semibold text-gray-800" style={{ fontSize: '1.5rem', fontWeight: 700 }}>
-         <h2>ComplianceHub</h2>
+    <header className="bg-white shadow-md px-6 py-4 flex items-center justify-between">
+      {/* Logo */}
+      <div className="flex items-center gap-2">
+        <img 
+          src="https://cybersecurity.fi/assets/images/logo.png" 
+          alt="ComplianceHub Logo" 
+          className="h-10 w-auto object-contain"
+          style={{ filter: 'brightness(0)' }}
+        />
       </div>
 
-      <nav className="hidden md:flex gap-5 text-sm">
-        <Link 
-          to="/frameworks" 
-          className="font-medium text-gray-800 hover:text-blue-600"
-        >
-        Frameworks
-        </Link>
-        <Link 
-          to="/risks" 
-          className="font-medium text-gray-800 hover:text-blue-600"
-        >
-        Risks
-        </Link>
-         <Link 
-          to="/tasks" 
-          className="font-medium text-gray-800 hover:text-blue-600"
-        >
-         Tasks
-        </Link>
-        <Link 
-          to="/reports" 
-          className="font-medium text-gray-800 hover:text-blue-600"
-         >
-          Reports
-        </Link>
-           {user?.role === 'admin' && (
-        <Link 
-          to="/admin" 
-          className="font-medium text-gray-800 hover:text-blue-600"
-         >
-         Admin
-        </Link>
-      )}
+      {/* Navigation */}
+      <nav className="hidden md:flex gap-6 text-sm">
+        <Link to="/frameworks" className="text-gray-700 hover:text-blue-600 font-medium">Frameworks</Link>
+        <Link to="/risks" className="text-gray-700 hover:text-blue-600 font-medium">Risks</Link>
+        <Link to="/tasks" className="text-gray-700 hover:text-blue-600 font-medium">Tasks</Link>
+        <Link to="/reports" className="text-gray-700 hover:text-blue-600 font-medium">Reports</Link>
+        {user?.role === 'admin' && (
+          <Link to="/admin" className="text-gray-700 hover:text-blue-600 font-medium">Admin</Link>
+        )}
       </nav>
 
-<div className="flex items-center gap-4">
-  <Link 
-    to="/settings/profile" 
-    className="font-medium text-gray-800 hover:text-blue-600"
-  >
-    {user?.name}
-  </Link>
+      {/* User + Logout */}
+      <div className="flex items-center gap-4">
+        <Link 
+          to="/settings/profile" 
+          className="text-sm text-gray-800 hover:text-blue-600 font-medium"
+        >
+          {user?.firstName || 'Settings'}
+        </Link>
         <button
           onClick={handleLogout}
-          className="text-sm text-white bg-red-500 hover:bg-red-600 px-3 py-1 rounded"
+          className="text-sm text-white bg-green-500 hover:bg-red-600 px-3 py-1 rounded-md"
         >
           Logout
         </button>

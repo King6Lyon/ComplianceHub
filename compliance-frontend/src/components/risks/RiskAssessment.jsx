@@ -63,99 +63,105 @@ const RiskAssessment = () => {
     }
   };
 
-  if (loading) return <div>Loading risks...</div>;
+  if (loading) return <div className="p-6 text-gray-600">Loading risks...</div>;
 
   return (
-    <div className="risk-assessment">
-      <h2>Risk Assessment</h2>
+    <div className="p-6 bg-white rounded-lg shadow">
+      <h2 className="text-2xl font-bold mb-4">Risk Assessment</h2>
       {error && <Alert type="error" message={error} />}
-      
-      <button onClick={() => setShowModal(true)} className="add-risk-btn">
+
+      <button
+        onClick={() => setShowModal(true)}
+        className="mb-4 bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
+      >
         Add New Risk
       </button>
-      
-      <div className="risk-list">
-        {risks.length === 0 ? (
-          <p>No risks identified yet</p>
-        ) : (
-          <table>
-            <thead>
-              <tr>
-                <th>Name</th>
-                <th>Category</th>
-                <th>Likelihood</th>
-                <th>Impact</th>
-                <th>Risk Level</th>
-                <th>Mitigating Controls</th>
-                <th>Actions</th>
+
+      <div className="overflow-x-auto">
+        <table className="min-w-full text-sm text-left border border-gray-200">
+          <thead className="bg-gray-50">
+            <tr>
+              <th className="px-4 py-2 border">Name</th>
+              <th className="px-4 py-2 border">Category</th>
+              <th className="px-4 py-2 border">Likelihood</th>
+              <th className="px-4 py-2 border">Impact</th>
+              <th className="px-4 py-2 border">Risk Level</th>
+              <th className="px-4 py-2 border">Mitigating Controls</th>
+              <th className="px-4 py-2 border">Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            {risks.map(risk => (
+              <tr key={risk.id} className="border-t">
+                <td className="px-4 py-2 border font-medium text-gray-700">{risk.name}</td>
+                <td className="px-4 py-2 border">{risk.category}</td>
+                <td className="px-4 py-2 border">{risk.likelihood}</td>
+                <td className="px-4 py-2 border">{risk.impact}</td>
+                <td className="px-4 py-2 border">
+                  <span className={`px-2 py-1 rounded text-xs font-semibold ${
+                    risk.level === 'high' ? 'bg-red-100 text-red-800' :
+                    risk.level === 'medium' ? 'bg-yellow-100 text-yellow-800' :
+                    'bg-green-100 text-green-800'
+                  }`}>
+                    {risk.level}
+                  </span>
+                </td>
+                <td className="px-4 py-2 border">
+                  {risk.controls.length > 0 ? (
+                    <ul className="list-disc list-inside space-y-1">
+                      {risk.controls.map(control => (
+                        <li key={control.id}>{control.name}</li>
+                      ))}
+                    </ul>
+                  ) : (
+                    <span className="text-gray-400 italic">No controls assigned</span>
+                  )}
+                </td>
+                <td className="px-4 py-2 border">
+                  <button
+                    onClick={() => handleMitigation(risk.id, ['control1', 'control2'])}
+                    className="bg-indigo-500 hover:bg-indigo-600 text-white text-xs px-3 py-1 rounded"
+                  >
+                    Assign Controls
+                  </button>
+                </td>
               </tr>
-            </thead>
-            <tbody>
-              {risks.map(risk => (
-                <tr key={risk.id}>
-                  <td>{risk.name}</td>
-                  <td>{risk.category}</td>
-                  <td>{risk.likelihood}</td>
-                  <td>{risk.impact}</td>
-                  <td>
-                    <span className={`risk-level ${risk.level}`}>
-                      {risk.level}
-                    </span>
-                  </td>
-                  <td>
-                    {risk.controls.length > 0 ? (
-                      <ul>
-                        {risk.controls.map(control => (
-                          <li key={control.id}>{control.name}</li>
-                        ))}
-                      </ul>
-                    ) : (
-                      <span className="no-controls">No controls assigned</span>
-                    )}
-                  </td>
-                  <td>
-                    <button 
-                      onClick={() => handleMitigation(risk.id, ['control1', 'control2'])}
-                      className="assign-controls-btn"
-                    >
-                      Assign Controls
-                    </button>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        )}
+            ))}
+          </tbody>
+        </table>
       </div>
-      
+
       <Modal show={showModal} onClose={() => setShowModal(false)}>
-        <h3>Add New Risk</h3>
-        <form onSubmit={handleSubmit}>
-          <div className="form-group">
-            <label>Risk Name</label>
+        <h3 className="text-lg font-semibold mb-4">Add New Risk</h3>
+        <form onSubmit={handleSubmit} className="space-y-4">
+          <div>
+            <label className="block text-sm font-medium text-gray-700">Risk Name</label>
             <input
               type="text"
               name="name"
               value={formData.name}
               onChange={handleChange}
               required
+              className="w-full border rounded px-3 py-2"
             />
           </div>
-          <div className="form-group">
-            <label>Description</label>
+          <div>
+            <label className="block text-sm font-medium text-gray-700">Description</label>
             <textarea
               name="description"
               value={formData.description}
               onChange={handleChange}
               required
+              className="w-full border rounded px-3 py-2"
             />
           </div>
-          <div className="form-group">
-            <label>Category</label>
+          <div>
+            <label className="block text-sm font-medium text-gray-700">Category</label>
             <select
               name="category"
               value={formData.category}
               onChange={handleChange}
+              className="w-full border rounded px-3 py-2"
             >
               <option value="security">Security</option>
               <option value="privacy">Privacy</option>
@@ -163,31 +169,42 @@ const RiskAssessment = () => {
               <option value="operational">Operational</option>
             </select>
           </div>
-          <div className="form-group">
-            <label>Likelihood</label>
-            <select
-              name="likelihood"
-              value={formData.likelihood}
-              onChange={handleChange}
-            >
-              <option value="low">Low</option>
-              <option value="medium">Medium</option>
-              <option value="high">High</option>
-            </select>
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <label className="block text-sm font-medium text-gray-700">Likelihood</label>
+              <select
+                name="likelihood"
+                value={formData.likelihood}
+                onChange={handleChange}
+                className="w-full border rounded px-3 py-2"
+              >
+                <option value="low">Low</option>
+                <option value="medium">Medium</option>
+                <option value="high">High</option>
+              </select>
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700">Impact</label>
+              <select
+                name="impact"
+                value={formData.impact}
+                onChange={handleChange}
+                className="w-full border rounded px-3 py-2"
+              >
+                <option value="low">Low</option>
+                <option value="medium">Medium</option>
+                <option value="high">High</option>
+              </select>
+            </div>
           </div>
-          <div className="form-group">
-            <label>Impact</label>
-            <select
-              name="impact"
-              value={formData.impact}
-              onChange={handleChange}
+          <div className="flex justify-end">
+            <button
+              type="submit"
+              className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
             >
-              <option value="low">Low</option>
-              <option value="medium">Medium</option>
-              <option value="high">High</option>
-            </select>
+              Save Risk
+            </button>
           </div>
-          <button type="submit">Save Risk</button>
         </form>
       </Modal>
     </div>

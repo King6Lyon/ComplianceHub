@@ -28,7 +28,7 @@ const TaskForm = ({ task, onSuccess, onCancel }) => {
         relatedControl: task.relatedControl?.id || ''
       });
     }
-    
+
     const loadUsers = async () => {
       try {
         const data = await getUsers();
@@ -53,7 +53,7 @@ const TaskForm = ({ task, onSuccess, onCancel }) => {
     try {
       setLoading(true);
       if (task) {
-        await updateTask(task.id, formData);
+        await updateTask(task._id, formData);
       } else {
         await createTask(formData);
       }
@@ -66,86 +66,102 @@ const TaskForm = ({ task, onSuccess, onCancel }) => {
   };
 
   return (
-    <form onSubmit={handleSubmit}>
+    <form onSubmit={handleSubmit} className="space-y-6 p-6 bg-white rounded-xl shadow">
+      <h2 className="text-xl font-semibold text-gray-800">{task ? 'Edit Task' : 'New Task'}</h2>
+
       {error && <Alert type="error" message={error} />}
-      
-      <div className="form-group">
-        <label>Title</label>
+
+      <div>
+        <label className="block text-sm font-medium text-gray-700">Title</label>
         <input
           type="text"
           name="title"
           value={formData.title}
           onChange={handleChange}
           required
+          className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"
         />
       </div>
-      
-      <div className="form-group">
-        <label>Description</label>
+
+      <div>
+        <label className="block text-sm font-medium text-gray-700">Description</label>
         <textarea
           name="description"
           value={formData.description}
           onChange={handleChange}
           required
+          className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"
         />
       </div>
-      
-      <div className="form-group">
-        <label>Due Date</label>
+
+      <div>
+        <label className="block text-sm font-medium text-gray-700">Due Date</label>
         <DatePicker
           selected={formData.dueDate}
           onChange={handleDateChange}
           minDate={new Date()}
           dateFormat="yyyy-MM-dd"
+          className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"
         />
       </div>
-      
-      <div className="form-group">
-        <label>Priority</label>
+
+      <div>
+        <label className="block text-sm font-medium text-gray-700">Priority</label>
         <select
           name="priority"
           value={formData.priority}
           onChange={handleChange}
+          className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"
         >
           <option value="low">Low</option>
           <option value="medium">Medium</option>
           <option value="high">High</option>
         </select>
       </div>
-      
-      <div className="form-group">
-        <label>Assign To</label>
+
+      <div>
+        <label className="block text-sm font-medium text-gray-700">Assign To</label>
         <select
           name="assignedTo"
           value={formData.assignedTo}
           onChange={handleChange}
+          className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"
         >
           <option value="">Select User</option>
           {users.map(user => (
-            <option key={user.id} value={user.id}>
+            <option key={user._id} value={user._id}>
               {user.name} ({user.role})
             </option>
           ))}
         </select>
       </div>
-      
-      <div className="form-group">
-        <label>Related Control (optional)</label>
+
+      <div>
+        <label className="block text-sm font-medium text-gray-700">Related Control (optional)</label>
         <input
           type="text"
           name="relatedControl"
           value={formData.relatedControl}
           onChange={handleChange}
           placeholder="Control ID"
+          className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"
         />
       </div>
-      
-      <div className="form-actions">
-        <button type="submit" disabled={loading}>
-          {loading ? 'Saving...' : 'Save Task'}
-        </button>
-        <button type="button" onClick={onCancel} className="cancel-btn">
+
+      <div className="flex justify-end gap-4">
+        <button
+          type="button"
+          onClick={onCancel}
+          className="px-4 py-2 bg-gray-200 hover:bg-gray-300 rounded-md"
+        >
           Cancel
+        </button>
+        <button
+          type="submit"
+          disabled={loading}
+          className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
+        >
+          {loading ? 'Saving...' : 'Save Task'}
         </button>
       </div>
     </form>

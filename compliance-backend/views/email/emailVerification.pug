@@ -2,11 +2,55 @@ doctype html
 html
   head
     title Vérification d'email
+    style.
+      /* Styles de base pour les emails */
+      body {
+        font-family: Arial, sans-serif;
+        line-height: 1.6;
+        color: #333;
+        background-color: #f4f4f4;
+        margin: 0;
+        padding: 20px;
+      }
+      .container {
+        max-width: 600px;
+        margin: 20px auto;
+        background: #fff;
+        padding: 30px;
+        border-radius: 8px;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+      }
+      h1 {
+        color: #0056b3;
+        text-align: center;
+      }
+      p {
+        margin-bottom: 15px;
+      }
+      .button {
+        display: block;
+        width: 200px;
+        margin: 20px auto;
+        padding: 10px 15px;
+        background-color: #007bff;
+        color: #ffffff !important; /* important pour s'assurer que la couleur reste blanche */
+        text-decoration: none;
+        border-radius: 5px;
+        text-align: center;
+      }
+      .footer {
+        text-align: center;
+        margin-top: 20px;
+        font-size: 0.9em;
+        color: #777;
+      }
   body
-    h1 Vérification de votre adresse email
-    p Bonjour #{username},
-    p Merci de vérifier votre adresse email en cliquant sur le lien ci-dessous:
-    a(href=verificationLink) Vérifier mon email
-    p Si vous ne vous êtes pas inscrit sur notre plateforme, veuillez ignorer cet email.
-    p Cordialement,
-    p L'équipe de sécurité
+    .container
+      h1 Vérification de votre adresse email
+      p Bonjour #{firstName},
+      p Merci de vérifier votre adresse email en cliquant sur le lien ci-dessous :
+      a.button(href=url) Vérifier mon email
+      p Si vous n'avez pas demandé cette vérification, veuillez ignorer cet email.
+      .footer
+        p Cordialement,
+        p L'équipe de sécurité

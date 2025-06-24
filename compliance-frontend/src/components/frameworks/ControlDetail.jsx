@@ -1,12 +1,11 @@
-import React, {useEffect, useState } from 'react';
-import { useParams } from 'react-router-dom';
-import { useFramework } from '../../context/framework-state';
+import React, { useEffect, useState } from 'react';
+import { useParams, Link } from 'react-router-dom';
 import { getControlDetails, updateControlStatus } from '../../api/frameworks';
 import Alert from '../common/Alert';
+import { ShieldCheck, ArrowLeft } from 'lucide-react';
 
 const ControlDetail = () => {
   const { id } = useParams();
-  const { currentFramework } = useFramework();
   const [control, setControl] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
@@ -18,7 +17,11 @@ const ControlDetail = () => {
       try {
         setLoading(true);
         const data = await getControlDetails(id);
-        setControl(data);
+        setControl({
+          ...data,
+          refId: data.controlId,
+          name: data.title
+        });
         setStatus(data.status);
       } catch (err) {
         setError(err.response?.data?.message || 'Failed to load control details');
@@ -32,66 +35,57 @@ const ControlDetail = () => {
   const handleStatusChange = async (e) => {
     const newStatus = e.target.value;
     try {
-      await updateControlStatus(control.id, newStatus);
+      await updateControlStatus(control._id, newStatus);
       setStatus(newStatus);
       setControl({ ...control, status: newStatus });
-      setUpdateSuccess('Control status updated successfully');
+      setUpdateSuccess('Statut du contrôle mis à jour.');
       setTimeout(() => setUpdateSuccess(''), 3000);
     } catch (err) {
-      setError(err.response?.data?.message || 'Failed to update control status');
+      setError(err.response?.data?.message || 'Erreur lors de la mise à jour');
     }
   };
 
-  if (loading) return <div>Loading control details...</div>;
+  if (loading) return <div className="p-4">Chargement des détails du contrôle...</div>;
   if (error) return <Alert type="error" message={error} />;
-  if (!control) return <div>Control not found</div>;
+  if (!control) return <div className="p-4">Contrôle non trouvé</div>;
 
   return (
-    <div className="control-detail">
-      <h2>{control.refId} - {control.name}</h2>
+    <div className="max-w-4xl mx-auto p-6">
+      <div className="flex justify-between items-center mb-6">
+        <div className="flex items-center gap-3">
+          <ShieldCheck className="text-blue-600" />
+          <h2 className="text-2xl font-bold text-gray-800">
+            {control.refId} – {control.name}
+          </h2>
+        </div>
+        <Link
+          to="/frameworks"
+          className="flex items-center text-sm text-blue-600 hover:underline"
+        >
+          <ArrowLeft className="w-4 h-4 mr-1" />
+          Retour aux Frameworks
+        </Link>
+      </div>
+
       {updateSuccess && <Alert type="success" message={updateSuccess} />}
-      
-      <div className="control-meta">
-        <p><strong>Framework:</strong> {currentFramework?.name || 'N/A'}</p>
-        <p><strong>Category:</strong> {control.category}</p>
-      </div>
-      
-      <div className="control-description">
-        <h3>Description</h3>
-        <p>{control.description}</p>
-      </div>
-      
-      <div className="control-guidance">
-        <h3>Implementation Guidance</h3>
-        <p>{control.guidance}</p>
-      </div>
-      
-      <div className="control-status">
-        <h3>Status</h3>
-        <select value={status} onChange={handleStatusChange}>
-          <option value="not_implemented">Not Implemented</option>
-          <option value="partially_implemented">Partially Implemented</option>
-          <option value="implemented">Implemented</option>
-          <option value="not_applicable">Not Applicable</option>
-        </select>
-      </div>
-      
-      <div className="control-evidence">
-        <h3>Evidence</h3>
-        {control.evidence && control.evidence.length > 0 ? (
-          <ul>
-            {control.evidence.map((item, index) => (
-              <li key={index}>
-                <a href={item.url} target="_blank" rel="noopener noreferrer">
-                  {item.name || `Evidence ${index + 1}`}
-                </a>
-                <span> - {item.description}</span>
-              </li>
-            ))}
-          </ul>
-        ) : (
-          <p>No evidence attached</p>
-        )}
+
+      <div className="bg-white p-6 rounded-2xl shadow">
+        <p className="mb-4">
+          <strong>Description :</strong> {control.description}
+        </p>
+
+        <div className="flex flex-col gap-2">
+          <label className="font-medium text-gray-700">Statut :</label>
+          <select
+            className="p-2 border border-gray-300 rounded-md max-w-xs"
+            value={status}
+            onChange={handleStatusChange}
+          >
+            <option value="non démarré">Non démarré</option>
+            <option value="en cours">En cours</option>
+            <option value="terminé">Terminé</option>
+          </select>
+        </div>
       </div>
     </div>
   );

@@ -69,56 +69,44 @@ exports.register = async (req, res, next) => {
 // @route   POST /api/auth/login
 // @access  Public
 exports.login = async (req, res, next) => {
-  console.log('Login attempt with:', req.body);
-  const { email, password } = req.body;
   try {
-     // Check for user
-    const user = await User.findOne({ email }).select('+password');
-    console.log('Login credentials:', email, password);
-    console.log('User found:', user);
-    console.log('User hashed password:', user.password);
+    const { email, password, mfaCode } = req.body;
 
-
-    if (!user) {
-      return res.status(401).json({ success: false, message: 'Invalid credentials' });
+    if (!email || !password) {
+      return next(new AppError('Veuillez fournir un email et un mot de passe', 400));
     }
 
-    // Check if password matches
-    const isMatch = await bcrypt.compare(password, user.password);
+    const user = await User.findOne({ email }).select('+password +isVerified +mfaEnabled');
     
-    if (!isMatch) {
-      return res.status(401).json({ success: false, message: 'Invalid credentials' });
+    if (!user || !(await user.correctPassword(password, user.password))) {
+      return next(new AppError('Email ou mot de passe incorrect', 401));
     }
 
-    // Check if email is verified
-   /*if (!user.isVerified) {
-      return res.status(401).json({ 
-        success: false, 
-        message: 'Email not verified. Please check your email for verification link.' 
-      });
+    /*if (!user.isVerified) {
+      return next(new AppError('Email non vérifié. Veuillez vérifier votre boîte mail.', 401));
     }*/
 
-    // Generate token
-    const token = generateToken(user._id);
-
-    // If MFA is enabled, return partial token and request MFA code
     if (user.mfaEnabled) {
-      const partialToken = jwt.sign(
-        { userId: user._id, mfaRequired: true },
-        process.env.JWT_SECRET,
-        { expiresIn: '5m' }
-      );
-
-      return res.status(200).json({
-        success: true,
-        token: partialToken,
-        mfaRequired: true,
-        message: 'MFA required. Please enter your authentication code.'
-      });
+      if (!mfaCode) {
+        return res.status(202).json({
+          status: 'mfa_required',
+          mfaEnabled: true,
+          message: 'Authentification MFA requise'
+        });
+      }
+      
+      const isMfaValid = await verifyMfaCode(user.mfaSecret, mfaCode);
+      if (!isMfaValid) {
+        return next(new AppError('Code MFA invalide', 401));
+      }
     }
 
+    const token = generateToken(user._id);
+    user.password = undefined;
+    user.mfaSecret = undefined;
+
     res.status(200).json({
-      success: true,
+      status: 'success',
       token,
       user: {
         id: user._id,
@@ -131,7 +119,6 @@ exports.login = async (req, res, next) => {
       }
     });
   } catch (err) {
-     console.error('Login error:', err);
     next(err);
   }
 };
@@ -194,12 +181,18 @@ exports.forgotPassword = async (req, res, next) => {
     user.resetPasswordExpires = Date.now() + 3600000; // 1 hour
     await user.save();
 
-    // Send email
-    await sendPasswordResetEmail(user.email, resetToken);
+    // --- MODIFICATION ICI ---
+    // Construire l'URL complète pour le frontend
+    // Elle pointe vers votre page d'authentification avec les paramètres 'mode' et 'token'
+    const resetUrl = `${process.env.CLIENT_URL}/auth?mode=reset&token=${resetToken}`;
 
-    res.status(200).json({ 
-      success: true, 
-      message: 'Password reset link sent to email' 
+    // Envoyer l'email en passant l'URL complète au lieu du simple token
+    await sendPasswordResetEmail(user.email, resetUrl);
+    // --- FIN DE LA MODIFICATION ---
+
+    res.status(200).json({
+      success: true,
+      message: 'Password reset link sent to email'
     });
   } catch (err) {
     next(err);
@@ -341,7 +334,9 @@ exports.verifyMfaSetup = async (req, res, next) => {
 
 // Middleware to protect routes (JWT verification)
 exports.protect = async (req, res, next) => {
+  
   try {
+    console.log(`Protecting route: ${req.originalUrl}`);
     // 1. Get token from header
     const token = req.header('Authorization')?.replace('Bearer ', '');
 

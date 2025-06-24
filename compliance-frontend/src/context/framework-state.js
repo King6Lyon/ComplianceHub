@@ -1,7 +1,9 @@
 import { createContext, useContext } from 'react';
 
-export const FrameworkContext = createContext(null); // Initialisez avec une valeur par défaut
+// Création du contexte
+export const FrameworkContext = createContext();
 
+// Hook personnalisé pour consommer le contexte
 export const useFramework = () => {
   const context = useContext(FrameworkContext);
   if (!context) {

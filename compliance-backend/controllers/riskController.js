@@ -4,6 +4,7 @@ const AppError = require('../utils/appError');
 const catchAsync = require('../utils/catchAsync');
 
 exports.getRiskAssessments = catchAsync(async (req, res, next) => {
+  console.log('User ID from token:', req.user.id); 
   const filter = { userId: req.user.id };
   
   if (req.params.frameworkId) {
@@ -47,8 +48,11 @@ exports.getRiskAssessment = catchAsync(async (req, res, next) => {
 });
 
 exports.createRiskAssessment = catchAsync(async (req, res, next) => {
+   console.log('Requête reçue - Body:', req.body); // Ajoutez cette ligne
+  console.log('User ID:', req.user.id); // Et cette ligne
   // Vérifier que le framework existe
-  const framework = await Framework.findById(req.body.frameworkId);
+  const framework = await Framework.findOne({ _id: req.body.frameworkId }); // Utilisez findOne au lieu de findById
+  console.log('Framework trouvé:', framework);
   if (!framework) {
     return next(new AppError('Aucun cadre de conformité trouvé avec cet ID', 404));
   }

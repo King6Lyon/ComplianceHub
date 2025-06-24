@@ -27,6 +27,11 @@ const controlSchema = new mongoose.Schema({
     type: String,
     trim: true
   },
+  status: {
+    type: String,
+    enum: ['not_implemented', 'partially_implemented', 'implemented', 'not_applicable'],
+    default: 'not_implemented'
+  },
   maturityLevels: [{
     level: {
       type: Number,
@@ -48,6 +53,6 @@ const controlSchema = new mongoose.Schema({
   }
 });
 
-const Control = mongoose.model('Control', controlSchema);
+const Control = mongoose.model('control', controlSchema);
 
 module.exports = Control;

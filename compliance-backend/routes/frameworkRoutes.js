@@ -4,8 +4,9 @@ const authController = require('../controllers/authController');
 
 const router = express.Router();
 
-router.get('/', frameworkController.getAllFrameworks);
+router.get('/', frameworkController.getAllFrameworks); 
 router.get('/:id', frameworkController.getFramework);
+router.get('/:id/controls', frameworkController.getFrameworkControls);
 router.get('/:id/progress', authController.protect, frameworkController.getFrameworkProgress);
 
 router.use(authController.protect, authController.restrictTo('admin'));

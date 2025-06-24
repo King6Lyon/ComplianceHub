@@ -1,28 +1,38 @@
 const Control = require('../models/Control');
-const Framework = require('../models/Framework');
 const AppError = require('../utils/appError');
 const catchAsync = require('../utils/catchAsync');
 
 exports.getAllControls = catchAsync(async (req, res, next) => {
   const filters = { frameworkId: req.params.frameworkId };
   
-  // Filtrer par catégorie si spécifié
-  if (req.query.category) {
-    filters.category = req.query.category;
-  }
+  // if (req.query.category) {
+  //   filters.category = req.query.category;
+  // }
 
-  // Filtrer par niveau de maturité si spécifié
-  if (req.query.level) {
-    filters['maturityLevels.level'] = parseInt(req.query.level);
-  }
-
-  const controls = await Control.find(filters);
-
+  // if (req.query.level) {
+  //   filters['maturityLevels.level'] = parseInt(req.query.level);
+  // }
+  //  const  frameworkObjectId = new mongoose.Types.ObjectId(req.params.frameworkId);
+console.log(req.params.frameworkId)
+  const controls = await Control.find()
+    // .select('controlId title description category status maturityLevels')
+    // .lean();
+console.log(controls)
   res.status(200).json({
-    status: 'success',
-    results: controls.length,
+    success: true,
     data: {
-      controls
+      controls: controls.map(c => ({
+        _id: c._id,
+        refId: c.controlId,   
+        frameworkId : c.frameworkId,    // alias pour le frontend
+        name: c.title,           // alias pour le frontend
+        description: c.description,
+        category: c.category,
+        subCategory: c.subCategory,
+        status: c.status,        // maintenant disponible
+        guidance: c.maturityLevels?.[0]?.implementationGuidance || '',
+        maturityLevels: c.maturityLevels // conservez si nécessaire
+      }))
     }
   });
 });
@@ -114,7 +124,6 @@ exports.deleteControl = catchAsync(async (req, res, next) => {
     data: null
   });
 });
-
 exports.getControlCategories = catchAsync(async (req, res, next) => {
   const categories = await Control.distinct('category', { 
     frameworkId: req.params.frameworkId 
